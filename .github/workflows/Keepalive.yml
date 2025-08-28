@@ -17,7 +17,7 @@ jobs:
 
   trigger_build:
     # 仅每周六 16:00 执行
-    if: github.event_name == 'schedule' && github.event.schedule == '0 16 * * 6'
+    if: github.event_name == 'schedule' && github.event.schedule == '0 16 * * 3'
     runs-on: ubuntu-latest
     steps:
       - name: Trigger main build
@@ -25,3 +25,4 @@ jobs:
         with:
           token: ${{ github.token }}
           event-type: Source Code Update
+
