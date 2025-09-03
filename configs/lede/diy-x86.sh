@@ -42,6 +42,20 @@ git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 git clone --depth=1 https://github.com/Leo-Jo-My/luci-theme-opentomcat.git package/luci-theme-opentomcat
 sed -i 's|^KERNEL_PATCHVER:=.*|KERNEL_PATCHVER:=6.1|' target/linux/x86/Makefile
 
+# 开启 IPv4/IPv6 转发
+cat >> package/base-files/files/etc/sysctl.conf <<EOF
+net.ipv4.ip_forward=1
+net.ipv6.conf.all.forwarding=1
+net.ipv6.conf.default.forwarding=1
+EOF
+
+# 增加 IPv4/IPv6 NAT 规则
+mkdir -p package/base-files/files/etc
+cat >> package/base-files/files/etc/firewall.user <<EOF
+iptables -t nat -A POSTROUTING -j MASQUERADE
+ip6tables -t nat -A POSTROUTING -j MASQUERADE
+EOF
+
 # Delete mosdns
 #rm -rf feeds/packages/net/mosdns
 
