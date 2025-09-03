@@ -43,6 +43,13 @@ git clone --depth=1 https://github.com/Leo-Jo-My/luci-theme-opentomcat.git packa
 #sed -i 's|^PKG_HASH.*|PKG_HASH:=a565db518d2da12fabb74e123d9bf2bdbc34420b81373938f8fcbc7004fda3ba|' feeds/small/xray-core/Makefile
 #sed -i 's|^PKG_VERSION.*|PKG_VERSION:=1.11.15|' feeds/small/sing-box/Makefile
 #sed -i 's|^PKG_HASH.*|PKG_HASH:=97d58dd873d7cf9b5e4b4aca5516568f3b2e6f5c3dbc93241c82fff5e4a609fd|' feeds/small/sing-box/Makefile
+# 开启 IPv6 转发
+echo "net.ipv6.conf.all.forwarding=1" >> package/base-files/files/etc/sysctl.conf
+echo "net.ipv6.conf.default.forwarding=1" >> package/base-files/files/etc/sysctl.conf
+
+# 增加 IPv6 NAT 规则
+mkdir -p package/base-files/files/etc
+echo "ip6tables -t nat -A POSTROUTING -j MASQUERADE" >> package/base-files/files/etc/firewall.user
 
 # Delete mosdns
 #rm -rf feeds/packages/net/mosdns
