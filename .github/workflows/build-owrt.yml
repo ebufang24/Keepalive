@@ -247,7 +247,10 @@ jobs:
         haskell: true
         large-packages: true
         docker-images: true
-        swap-storage: true  
+        swap-storage: true
+        
+    - name: Set bigger TMPDIR
+      run: echo "TMPDIR=/mnt" >> $GITHUB_ENV
 
     - name: Clone source code
       working-directory: /workdir
