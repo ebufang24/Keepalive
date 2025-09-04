@@ -44,20 +44,6 @@ sed -i 's|^PKG_HASH.*|PKG_HASH:=a7d3785fdd46f1b045b1ef49a2a06e595c327f514b5ee8cd
 #sed -i 's|^PKG_VERSION.*|PKG_VERSION:=1.11.15|' feeds/small/sing-box/Makefile
 #sed -i 's|^PKG_HASH.*|PKG_HASH:=97d58dd873d7cf9b5e4b4aca5516568f3b2e6f5c3dbc93241c82fff5e4a609fd|' feeds/small/sing-box/Makefile
 
-# 开启 IPv4/IPv6 转发
-cat >> package/base-files/files/etc/sysctl.conf <<EOF
-net.ipv4.ip_forward=1
-net.ipv6.conf.all.forwarding=1
-net.ipv6.conf.default.forwarding=1
-EOF
-
-# 增加 IPv4/IPv6 NAT 规则
-mkdir -p package/base-files/files/etc
-cat >> package/base-files/files/etc/firewall.user <<EOF
-iptables -t nat -A POSTROUTING -j MASQUERADE
-ip6tables -t nat -A POSTROUTING -j MASQUERADE
-EOF
-
 # Delete mosdns
 #rm -rf feeds/packages/net/mosdns
 
