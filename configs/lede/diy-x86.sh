@@ -40,7 +40,7 @@ sed -i 's|^PKG_HASH.*|PKG_HASH:=a7d3785fdd46f1b045b1ef49a2a06e595c327f514b5ee8cd
 #sed -i 's|^PKG_VERSION.*|PKG_VERSION:=1.11.15|' feeds/small/sing-box/Makefile
 #sed -i 's|^PKG_HASH.*|PKG_HASH:=97d58dd873d7cf9b5e4b4aca5516568f3b2e6f5c3dbc93241c82fff5e4a609fd|' feeds/small/sing-box/Makefile
 git clone --depth=1 https://github.com/Leo-Jo-My/luci-theme-opentomcat.git package/luci-theme-opentomcat
-sed -i 's|^KERNEL_PATCHVER:=.*|KERNEL_PATCHVER:=6.1|' target/linux/x86/Makefile
+#sed -i 's|^KERNEL_PATCHVER:=.*|KERNEL_PATCHVER:=6.1|' target/linux/x86/Makefile
 
 # Delete mosdns
 #rm -rf feeds/packages/net/mosdns
