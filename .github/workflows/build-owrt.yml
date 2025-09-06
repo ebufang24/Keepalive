@@ -207,7 +207,22 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Free up space early
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+        sudo docker image prune --all --force
+        sudo -E apt-get -qq update
+        sudo -E apt-get -qq install ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libfuse-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libpython3-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pyelftools python3-setuptools qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev rename
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean
+        sudo timedatectl set-timezone "$TZ"
+        sudo mkdir -p /workdir
+        sudo chown $USER:$GROUPS /workdir
+        df -hT
+        
+    - name: Free up space
       uses: jlumbroso/free-disk-space@main
       with:
         tool-cache: true
@@ -216,107 +231,48 @@ jobs:
         haskell: true
         large-packages: true
         docker-images: true
-        swap-storage: false   # 保留 swap，不动 /tmp，避免 awk 报错
-
-    - name: Initialization environment
-      env:
-        DEBIAN_FRONTEND: noninteractive
-      run: |
-        set -e
-        # 清理一些占位目录（保守操作）
-        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL || true
-        sudo docker image prune --all --force || true
-
-        # 基础依赖（保留 python3，不装 python2）
-        sudo -E apt-get -qq update
-        sudo -E apt-get -qq install -yq \
-          ack antlr3 asciidoc autoconf automake autopoint \
-          binutils bison build-essential bzip2 ccache cmake cpio curl \
-          device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib \
-          git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libfuse-dev \
-          libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev \
-          libncurses5-dev libncursesw5-dev libpython3-dev libreadline-dev libssl-dev \
-          libtool lrzsz mkisofs msmtp ninja-build p7zip p7zip-full patch pkgconf \
-          python3 python3-pyelftools python3-setuptools qemu-utils rsync scons \
-          squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto \
-          xxd zlib1g-dev rename || true
-
-        sudo -E apt-get -qq autoremove --purge -y || true
-        sudo -E apt-get -qq clean || true
-
-        # 准备 /workdir（我们把所有构建放在这里）
-        sudo mkdir -p /workdir
-        sudo chown -R $(whoami):$(whoami) /workdir
-
-        # 准备 /workdir/tmp 并替换 /tmp（保证写入权限且在较大磁盘）
-        sudo mkdir -p /workdir/tmp
-        sudo chown -R $(whoami):$(whoami) /workdir/tmp
-        sudo rm -rf /tmp || true
-        sudo ln -s /workdir/tmp /tmp
-        echo "TMPDIR=/workdir/tmp" >> $GITHUB_ENV
-
-        echo "=== Disk status after init ==="
-        df -hT
-        ls -ld /workdir /workdir/tmp /tmp
+        swap-storage: true  
 
     - name: Clone source code
       working-directory: /workdir
       run: |
-        set -e
-        # 推荐浅克隆以节约空间，如果你的脚本依赖 git 历史，请改回不带 --depth=1 的命令
-        git clone --depth=1 --single-branch -b $REPO_BRANCH $REPO_URL openwrt
+        git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
         df -hT
 
     - name: Load custom feeds
       run: |
-        set -e
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
-        chmod +x $DIY_P1_SH || true
+        chmod +x $DIY_P1_SH
         cd openwrt
-        # 执行用户自定义第一阶段脚本（例如添加第三方 feed 等）
-        $GITHUB_WORKSPACE/$DIY_P1_SH || true
+        $GITHUB_WORKSPACE/$DIY_P1_SH
 
     - name: Update feeds
-      run: |
-        cd openwrt
-        ./scripts/feeds update -a
-        df -hT
+      run: cd openwrt && ./scripts/feeds update -a
 
     - name: Install feeds
-      run: |
-        cd openwrt
-        ./scripts/feeds install -a
-        df -hT
+      run: cd openwrt && ./scripts/feeds install -a
 
     - name: Load custom configuration
       run: |
-        set -e
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-        chmod +x $DIY_P2_SH || true
+        chmod +x $DIY_P2_SH
         cd openwrt
-        # 用户自定义第二阶段（例如修改 .config）
-        $GITHUB_WORKSPACE/$DIY_P2_SH || true
-        df -hT
+        $GITHUB_WORKSPACE/$DIY_P2_SH
 
     - name: Download package
       id: package
       run: |
-        set -e
         cd openwrt
         make defconfig
-        make download -j$(nproc) || true
-        # 清除非常小的损坏包
-        find dl -size -1024c -exec ls -l {} \; || true
-        find dl -size -1024c -exec rm -f {} \; || true
-
-        DEVICE_TARGET=$(grep CONFIG_TARGET_BOARD .config | awk -F '"' '{print $2}' || true)
+        make download -j$(nproc)
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+        DEVICE_TARGET=$(cat .config | grep CONFIG_TARGET_BOARD | awk -F '"' '{print $2}')
         echo "DEVICE_TARGET=$DEVICE_TARGET" >> $GITHUB_ENV
-        DEVICE_SUBTARGET=$(grep CONFIG_TARGET_SUBTARGET .config | awk -F '"' '{print $2}' || true)
+        DEVICE_SUBTARGET=$(cat .config | grep CONFIG_TARGET_SUBTARGET | awk -F '"' '{print $2}')
         echo "DEVICE_SUBTARGET=$DEVICE_SUBTARGET" >> $GITHUB_ENV
-
-        df -hT
 
     - name: cache
       uses: HiGarfield/cachewrtbuild@main
@@ -325,43 +281,20 @@ jobs:
         mixkey: ${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
         prefix: ${{ github.workspace }}/openwrt
 
-    - name: Ensure tmpdir ownership and quick disk-check
-      run: |
-        set -e
-        echo "Ensure /workdir/tmp is writable by runner user"
-        sudo chown -R $(whoami):$(whoami) /workdir
-        sudo chmod -R u+rwx /workdir/tmp || true
-        echo "Disk usage summary:"
-        df -hT /workdir /tmp || true
-        echo "ls /workdir (top):"
-        ls -lh /workdir | head -n 50 || true
-
-        # 预先检查可用空间（MB），阈值可调整（这里 10240 MB = 10 GB）
-        avail_mb=$(df -m /workdir | tail -1 | awk '{print $4}')
-        echo "Available MB on /workdir: $avail_mb"
-        if [ -z "$avail_mb" ] || [ "$avail_mb" -lt 10240 ]; then
-          echo "ERROR: Not enough free space on /workdir (need >= 10240 MB). Aborting to avoid wasted runs."
-          df -hT
-          exit 1
-        fi
-
     - name: Compile the firmware
       id: compile
       run: |
-        set -e
         cd openwrt
-        df -hT /workdir /tmp
+        df -hT
         echo -e "$(($(nproc)+1)) thread compile"
-        # 先并发编译，失败则回退到单线程并显示详细日志
-        make -j$(($(nproc)+1)) || ( echo "Multi-thread failed, retry single-thread with verbose"; make -j1 V=s )
-        # 输出构建相关环境变量
-        echo "{status}={success}" >> $GITHUB_OUTPUT || true
-        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME || true
-        [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV || true
+        make -j$(($(nproc)+1)) || make -j1 V=s
+        echo "{status}={success}" >> $GITHUB_OUTPUT
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+        [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
         echo "FILE_DATE=$(date +"%Y-%m-%d")" >> $GITHUB_ENV
         echo "DATE=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
         echo "TAG_DATE=$(date +"%m%d-%H%M%S")" >> $GITHUB_ENV
-        df -hT /workdir /tmp
+        df -hT
 
     - name: Check space usage
       if: (!cancelled())
