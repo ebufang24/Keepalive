@@ -207,73 +207,152 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    # 提前清理磁盘空间（删除一些预装的包和工具，释放空间）
+    - name: Free up space early
+      uses: jlumbroso/free-disk-space@main
+      with:
+        tool-cache: true      # 删除 tool-cache
+        android: true         # 删除 Android SDK
+        dotnet: true          # 删除 dotnet SDK
+        haskell: true         # 删除 Haskell
+        large-packages: true  # 删除大型预装包
+        docker-images: true   # 删除 docker 镜像
+        swap-storage: false   # 保留 swap，不删除 /tmp，避免 awk 报错
+
+    # 初始化编译环境：清理系统、安装依赖、准备工作目录、检查磁盘空间
     - name: Initialization environment
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
-        sudo docker image prune --all --force
+        set -euo pipefail
+
+        # 基础清理，删除无关目录和镜像
+        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL || true
+        sudo docker image prune --all --force || true
+
+        # 安装 OpenWrt 编译所需依赖（移除 python2，保留 python3）
         sudo -E apt-get -qq update
-        sudo -E apt-get -qq install ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libfuse-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libpython3-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pyelftools python3-setuptools qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev rename
-        sudo -E apt-get -qq autoremove --purge
-        sudo -E apt-get -qq clean
-        sudo timedatectl set-timezone "$TZ"
+        sudo -E apt-get -qq install -yq \
+          ack antlr3 asciidoc autoconf automake autopoint \
+          binutils bison build-essential bzip2 ccache cmake cpio curl \
+          device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib \
+          git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libfuse-dev \
+          libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev \
+          libncurses5-dev libncursesw5-dev libpython3-dev libreadline-dev libssl-dev \
+          libtool lrzsz mkisofs msmtp ninja-build p7zip p7zip-full patch pkgconf \
+          python3 python3-pyelftools python3-setuptools qemu-utils rsync scons \
+          squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto \
+          xxd zlib1g-dev rename || true
+
+        sudo -E apt-get -qq autoremove --purge -y || true
+        sudo -E apt-get -qq clean || true
+
+        # 创建默认工作目录 /workdir
         sudo mkdir -p /workdir
-        sudo chown $USER:$GROUPS /workdir
-        df -hT
-        
-    - name: Free up space
-      uses: jlumbroso/free-disk-space@main
-      with:
-        tool-cache: true
-        android: true
-        dotnet: true
-        haskell: true
-        large-packages: true
-        docker-images: true
-        swap-storage: true  
+        sudo chown -R $(whoami):$(whoami) /workdir
 
+        # 优先使用 /mnt（如果有写权限且空间 >= 20GB），否则使用 /workdir
+        BUILD_ROOT=/workdir
+        if [ -d /mnt ]; then
+          if sudo test -w /mnt; then
+            avail_mnt_mb=$(df -m /mnt | tail -1 | awk '{print $4}')
+            if [ -n "$avail_mnt_mb" ] && [ "$avail_mnt_mb" -ge 20000 ]; then
+              BUILD_ROOT=/mnt/workdir
+            fi
+          fi
+        fi
+
+        # 创建编译根目录和 tmp 目录
+        sudo mkdir -p "$BUILD_ROOT"
+        sudo chown -R $(whoami):$(whoami) "$BUILD_ROOT"
+        mkdir -p "$BUILD_ROOT/tmp"
+        sudo chown -R $(whoami):$(whoami) "$BUILD_ROOT/tmp"
+
+        echo "BUILD_ROOT=$BUILD_ROOT" >> $GITHUB_ENV
+        echo "TMP_CAND=$BUILD_ROOT/tmp"
+
+        # 检查系统 /tmp 空间，如果不足 12GB，则强制挂载到 $BUILD_ROOT/tmp
+        tmp_avail_mb=$(df -m /tmp | tail -1 | awk '{print $4}' || echo 0)
+        echo "System /tmp available MB: $tmp_avail_mb"
+        if [ -z "$tmp_avail_mb" ] || [ "$tmp_avail_mb" -lt 12288 ]; then
+          echo "/tmp 空间不足 ($tmp_avail_mb MB)，重映射 /tmp -> $BUILD_ROOT/tmp"
+          sudo rm -rf /tmp || true
+          sudo ln -sfn "$BUILD_ROOT/tmp" /tmp
+          sudo chown -R $(whoami):$(whoami) "$BUILD_ROOT"
+        else
+          echo "/tmp 空间足够，保持默认挂载"
+        fi
+
+        # 设置 TMPDIR 环境变量（部分构建工具会用到）
+        echo "TMPDIR=$BUILD_ROOT/tmp" >> $GITHUB_ENV
+
+        echo "=== 初始化后磁盘状态 ==="
+        df -hT
+        ls -ld /tmp "$BUILD_ROOT" "$BUILD_ROOT/tmp" || true
+
+    # 克隆源码，放到 $BUILD_ROOT/openwrt 目录（浅克隆节省空间）
     - name: Clone source code
-      working-directory: /workdir
+      working-directory: ${{ env.BUILD_ROOT || '/workdir' }}
       run: |
-        git clone $REPO_URL -b $REPO_BRANCH openwrt
-        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+        set -e
+        git clone --depth=1 --single-branch -b $REPO_BRANCH $REPO_URL openwrt
+        ln -sf "$(pwd)/openwrt" $GITHUB_WORKSPACE/openwrt
         df -hT
 
+    # 加载自定义 feed 配置
     - name: Load custom feeds
       run: |
+        set -e
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
-        chmod +x $DIY_P1_SH
+        chmod +x $DIY_P1_SH || true
         cd openwrt
-        $GITHUB_WORKSPACE/$DIY_P1_SH
+        $GITHUB_WORKSPACE/$DIY_P1_SH || true
+        df -hT
 
+    # 更新 feeds
     - name: Update feeds
-      run: cd openwrt && ./scripts/feeds update -a
+      run: |
+        cd openwrt
+        ./scripts/feeds update -a
+        df -hT
 
+    # 安装 feeds
     - name: Install feeds
-      run: cd openwrt && ./scripts/feeds install -a
+      run: |
+        cd openwrt
+        ./scripts/feeds install -a
+        df -hT
 
+    # 加载自定义配置文件（包括 .config 和 files）
     - name: Load custom configuration
       run: |
+        set -e
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-        chmod +x $DIY_P2_SH
+        chmod +x $DIY_P2_SH || true
         cd openwrt
-        $GITHUB_WORKSPACE/$DIY_P2_SH
+        $GITHUB_WORKSPACE/$DIY_P2_SH || true
+        df -hT
 
+    # 下载源码包
     - name: Download package
       id: package
       run: |
+        set -e
         cd openwrt
         make defconfig
-        make download -j$(nproc)
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
-        DEVICE_TARGET=$(cat .config | grep CONFIG_TARGET_BOARD | awk -F '"' '{print $2}')
-        echo "DEVICE_TARGET=$DEVICE_TARGET" >> $GITHUB_ENV
-        DEVICE_SUBTARGET=$(cat .config | grep CONFIG_TARGET_SUBTARGET | awk -F '"' '{print $2}')
-        echo "DEVICE_SUBTARGET=$DEVICE_SUBTARGET" >> $GITHUB_ENV
+        make download -j$(nproc) || true
+        # 删除下载失败的小文件
+        find dl -size -1024c -exec ls -l {} \; || true
+        find dl -size -1024c -exec rm -f {} \; || true
 
+        DEVICE_TARGET=$(grep CONFIG_TARGET_BOARD .config | awk -F '"' '{print $2}' || true)
+        echo "DEVICE_TARGET=$DEVICE_TARGET" >> $GITHUB_ENV
+        DEVICE_SUBTARGET=$(grep CONFIG_TARGET_SUBTARGET .config | awk -F '"' '{print $2}' || true)
+        echo "DEVICE_SUBTARGET=$DEVICE_SUBTARGET" >> $GITHUB_ENV
+        df -hT
+
+    # 使用缓存（ccache），加快编译速度
     - name: cache
       uses: HiGarfield/cachewrtbuild@main
       with:
@@ -281,21 +360,45 @@ jobs:
         mixkey: ${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
         prefix: ${{ github.workspace }}/openwrt
 
+    # 确认临时目录权限，并检查磁盘空间
+    - name: Ensure tmpdir ownership and quick disk-check
+      run: |
+        set -e
+        BUILD_ROOT="${BUILD_ROOT:-/workdir}"
+        echo "Build root: $BUILD_ROOT"
+        sudo chown -R $(whoami):$(whoami) "$BUILD_ROOT" || true
+        sudo chmod -R u+rwx "$BUILD_ROOT/tmp" || true
+        echo "磁盘空间状态:"
+        df -hT "$BUILD_ROOT" /tmp || true
+        avail_mb=$(df -m "$BUILD_ROOT" | tail -1 | awk '{print $4}' || echo 0)
+        echo "BUILD_ROOT 可用空间: $avail_mb MB"
+        if [ -z "$avail_mb" ] || [ "$avail_mb" -lt 10240 ]; then
+          echo "错误: $BUILD_ROOT 空间不足 (需要 >= 10GB)，终止编译以避免浪费构建时间。"
+          df -hT
+          exit 1
+        fi
+        echo "BUILD_ROOT 内部文件占用情况:"
+        du -sh "$BUILD_ROOT"/* 2>/dev/null | sort -h | tail -n 30 || true
+
+    # 编译 OpenWrt 固件
     - name: Compile the firmware
       id: compile
       run: |
+        set -e
         cd openwrt
-        df -hT
-        echo -e "$(($(nproc)+1)) thread compile"
-        make -j$(($(nproc)+1)) || make -j1 V=s
-        echo "{status}={success}" >> $GITHUB_OUTPUT
-        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
-        [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+        echo "编译前磁盘空间:"
+        df -hT "$BUILD_ROOT" /tmp || true
+        echo -e "$(($(nproc)+1)) 线程编译"
+        make -j$(($(nproc)+1)) || ( echo "多线程失败，回退到单线程编译 (带详细日志)"; make -j1 V=s )
+        echo "{status}={success}" >> $GITHUB_OUTPUT || true
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME || true
+        [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV || true
         echo "FILE_DATE=$(date +"%Y-%m-%d")" >> $GITHUB_ENV
         echo "DATE=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
         echo "TAG_DATE=$(date +"%m%d-%H%M%S")" >> $GITHUB_ENV
-        df -hT
+        df -hT "$BUILD_ROOT" /tmp || true
 
+    # 编译结束后打印磁盘空间情况
     - name: Check space usage
       if: (!cancelled())
       run: df -hT
