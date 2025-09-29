@@ -44,6 +44,35 @@ sed -i 's|^PKG_HASH.*|PKG_HASH:=a7d3785fdd46f1b045b1ef49a2a06e595c327f514b5ee8cd
 #sed -i 's|^PKG_VERSION.*|PKG_VERSION:=1.11.15|' feeds/small/sing-box/Makefile
 #sed -i 's|^PKG_HASH.*|PKG_HASH:=97d58dd873d7cf9b5e4b4aca5516568f3b2e6f5c3dbc93241c82fff5e4a609fd|' feeds/small/sing-box/Makefile
 
+# diy.sh - 固定 OpenSSH 版本到 2025-09-25 commit 74abe2d0643d480c6260c1bc3a58e17f0c632f8b
+
+set -e
+
+echo "固定 OpenSSH 版本中..."
+
+# 删除旧版本
+rm -rf feeds/packages/net/openssh
+
+# 初始化一个新的仓库，专门拉取 openssh
+git init feeds/packages/net/openssh
+cd feeds/packages/net/openssh
+
+# 添加远程并开启 sparse checkout
+git remote add origin https://github.com/openwrt/packages.git
+git config core.sparseCheckout true
+echo "net/openssh" > .git/info/sparse-checkout
+
+# 拉取并切换到指定 commit
+git fetch --depth=1 origin 74abe2d0643d480c6260c1bc3a58e17f0c632f8b
+git checkout FETCH_HEAD
+
+# 清理 .git 目录，保留源码即可
+rm -rf .git
+
+cd ../../../..
+
+echo "OpenSSH 已固定到 commit 74abe2d0643d480c6260c1bc3a58e17f0c632f8b"
+
 # Delete mosdns
 #rm -rf feeds/packages/net/mosdns
 
