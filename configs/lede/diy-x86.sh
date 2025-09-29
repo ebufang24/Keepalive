@@ -42,6 +42,35 @@ sed -i 's|^PKG_HASH.*|PKG_HASH:=a7d3785fdd46f1b045b1ef49a2a06e595c327f514b5ee8cd
 git clone --depth=1 https://github.com/Leo-Jo-My/luci-theme-opentomcat.git package/luci-theme-opentomcat
 #sed -i 's|^KERNEL_PATCHVER:=.*|KERNEL_PATCHVER:=6.1|' target/linux/x86/Makefile
 
+# diy.sh - 固定 OpenSSH 版本到 2025-09-25 commit 74abe2d0643d480c6260c1bc3a58e17f0c632f8b
+
+set -e
+
+echo "固定 OpenSSH 版本中..."
+
+# 删除旧版本
+rm -rf feeds/packages/net/openssh
+
+# 初始化一个新的仓库，专门拉取 openssh
+git init feeds/packages/net/openssh
+cd feeds/packages/net/openssh
+
+# 添加远程并开启 sparse checkout
+git remote add origin https://github.com/openwrt/packages.git
+git config core.sparseCheckout true
+echo "net/openssh" > .git/info/sparse-checkout
+
+# 拉取并切换到指定 commit
+git fetch --depth=1 origin 74abe2d0643d480c6260c1bc3a58e17f0c632f8b
+git checkout FETCH_HEAD
+
+# 清理 .git 目录，保留源码即可
+rm -rf .git
+
+cd ../../../..
+
+echo "OpenSSH 已固定到 commit 74abe2d0643d480c6260c1bc3a58e17f0c632f8b"
+
 # Delete mosdns
 #rm -rf feeds/packages/net/mosdns
 
