@@ -3,7 +3,7 @@ name: Trigger & Keepalive
 on:
   schedule:
     - cron: "0 2 * * *"   # 每天 02:00 UTC (北京时间 10:00) 执行保活
-    - cron: "0 16 * * 2"  # 每周六 16:00 UTC (北京时间 周日0点) 执行编译
+    - cron: "0 16 * * 3"  # 每周六 16:00 UTC (北京时间 周日0点) 执行编译
   workflow_dispatch:       # 手动触发
 
 jobs:
@@ -34,13 +34,14 @@ jobs:
 
   trigger_build:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 16 * * 3'
+    #if: github.event.schedule == '0 16 * * 3'
     steps:
       - name: Trigger main build
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: Source Code Update
+
 
 
 
