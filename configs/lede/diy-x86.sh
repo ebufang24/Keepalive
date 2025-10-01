@@ -82,7 +82,14 @@ fetch_repo_dir \
     "74abe2d0643d480c6260c1bc3a58e17f0c632f8b" \
     "net/openssh" \
     "feeds/packages/net/openssh"
-
+    
+# 固定 openssl (lede 仓库）    
+fetch_repo_dir \
+    "https://github.com/coolsnowwolf/lede.git" \
+    "4afbc322bfb064e30871e6d34793ab347402f8e0" \
+    "package/libs/openssl" \
+    "package/libs/openssl"
+    
 # Delete mosdns
 #rm -rf feeds/packages/net/mosdns
 
