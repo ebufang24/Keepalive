@@ -34,13 +34,14 @@ jobs:
 
   trigger_build:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 16 * * 3'
+    #if: github.event.schedule == '0 16 * * 3'
     steps:
       - name: Trigger main build
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: Source Code Update
+
 
 
 
