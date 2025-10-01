@@ -42,34 +42,46 @@ sed -i 's|^PKG_HASH.*|PKG_HASH:=a7d3785fdd46f1b045b1ef49a2a06e595c327f514b5ee8cd
 git clone --depth=1 https://github.com/Leo-Jo-My/luci-theme-opentomcat.git package/luci-theme-opentomcat
 #sed -i 's|^KERNEL_PATCHVER:=.*|KERNEL_PATCHVER:=6.1|' target/linux/x86/Makefile
 
-# diy.sh - 固定 OpenSSH 版本到 2025-09-25 commit 74abe2d0643d480c6260c1bc3a58e17f0c632f8b
+# diy.sh - 固定多个仓库的指定目录到特定 commit
 
 set -e
 
-echo "固定 OpenSSH 版本中..."
+# 通用函数: 从指定仓库、commit 拉取某个目录
+fetch_repo_dir() {
+    local REPO_URL=$1   # 仓库地址
+    local COMMIT=$2     # commit id
+    local SRC_DIR=$3    # 仓库里的目录 (例如 net/openssh)
+    local DEST_DIR=$4   # 本地目标目录 (例如 feeds/packages/net/openssh)
 
-# 删除旧版本
-rm -rf feeds/packages/net/openssh
+    echo "固定 $SRC_DIR 到 $COMMIT 来自 $REPO_URL"
 
-# 初始化一个新的仓库，专门拉取 openssh
-git init feeds/packages/net/openssh
-cd feeds/packages/net/openssh
+    rm -rf "$DEST_DIR"
+    TMP_DIR=$(mktemp -d)
 
-# 添加远程并开启 sparse checkout
-git remote add origin https://github.com/openwrt/packages.git
-git config core.sparseCheckout true
-echo "net/openssh" > .git/info/sparse-checkout
+    git -C "$TMP_DIR" init
+    git -C "$TMP_DIR" remote add origin "$REPO_URL"
+    git -C "$TMP_DIR" config core.sparseCheckout true
+    echo "$SRC_DIR/*" > "$TMP_DIR/.git/info/sparse-checkout"
 
-# 拉取并切换到指定 commit
-git fetch --depth=1 origin 74abe2d0643d480c6260c1bc3a58e17f0c632f8b
-git checkout FETCH_HEAD
+    git -C "$TMP_DIR" fetch --depth=1 origin "$COMMIT"
+    git -C "$TMP_DIR" checkout FETCH_HEAD
 
-# 清理 .git 目录，保留源码即可
-rm -rf .git
+    mkdir -p "$(dirname $DEST_DIR)"
+    mv "$TMP_DIR/$SRC_DIR" "$DEST_DIR"
 
-cd ../../../..
+    rm -rf "$TMP_DIR"
 
-echo "OpenSSH 已固定到 commit 74abe2d0643d480c6260c1bc3a58e17f0c632f8b"
+    echo "✅ $DEST_DIR 已固定到 $COMMIT"
+}
+
+# ================= 使用示例 =================
+
+# 固定 openssh (packages 仓库)
+fetch_repo_dir \
+    "https://github.com/openwrt/packages.git" \
+    "74abe2d0643d480c6260c1bc3a58e17f0c632f8b" \
+    "net/openssh" \
+    "feeds/packages/net/openssh"
 
 # Delete mosdns
 #rm -rf feeds/packages/net/mosdns
