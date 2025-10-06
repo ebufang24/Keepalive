@@ -79,18 +79,18 @@ fetch_repo_dir() {
 # ================= 使用示例 =================
 
 # 固定 openssh (packages 仓库)
-fetch_repo_dir \
-    "https://github.com/openwrt/packages.git" \
-    "74abe2d0643d480c6260c1bc3a58e17f0c632f8b" \
-    "net/openssh" \
-    "feeds/packages/net/openssh"
+#fetch_repo_dir \
+#    "https://github.com/openwrt/packages.git" \
+#    "74abe2d0643d480c6260c1bc3a58e17f0c632f8b" \
+#    "net/openssh" \
+#    "feeds/packages/net/openssh"
     
 # 固定 openssl (lede 仓库）    
-fetch_repo_dir \
-    "https://github.com/coolsnowwolf/lede.git" \
-    "4afbc322bfb064e30871e6d34793ab347402f8e0" \
-    "package/libs/openssl" \
-    "package/libs/openssl"
+#fetch_repo_dir \
+#    "https://github.com/coolsnowwolf/lede.git" \
+#    "4afbc322bfb064e30871e6d34793ab347402f8e0" \
+#    "package/libs/openssl" \
+#    "package/libs/openssl"
 
 # 固定 small/xray-core    
 fetch_repo_dir \
