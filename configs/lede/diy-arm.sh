@@ -39,8 +39,8 @@ rm -rf feeds/packages/utils/v2dat
 rm -rf feeds/packages/lang/golang
 git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 git clone --depth=1 https://github.com/Leo-Jo-My/luci-theme-opentomcat.git package/luci-theme-opentomcat
-sed -i 's|^PKG_VERSION.*|PKG_VERSION:=25.8.3|' feeds/small/xray-core/Makefile
-sed -i 's|^PKG_HASH.*|PKG_HASH:=a7d3785fdd46f1b045b1ef49a2a06e595c327f514b5ee8cd2ae7895813970b2c|' feeds/small/xray-core/Makefile
+#sed -i 's|^PKG_VERSION.*|PKG_VERSION:=25.8.3|' feeds/small/xray-core/Makefile
+#sed -i 's|^PKG_HASH.*|PKG_HASH:=a7d3785fdd46f1b045b1ef49a2a06e595c327f514b5ee8cd2ae7895813970b2c|' feeds/small/xray-core/Makefile
 #sed -i 's|^PKG_VERSION.*|PKG_VERSION:=1.11.15|' feeds/small/sing-box/Makefile
 #sed -i 's|^PKG_HASH.*|PKG_HASH:=97d58dd873d7cf9b5e4b4aca5516568f3b2e6f5c3dbc93241c82fff5e4a609fd|' feeds/small/sing-box/Makefile
 
@@ -91,6 +91,13 @@ fetch_repo_dir \
     "4afbc322bfb064e30871e6d34793ab347402f8e0" \
     "package/libs/openssl" \
     "package/libs/openssl"
+
+# 固定 small/xray-core    
+fetch_repo_dir \
+    "https://github.com/kenzok8/small.git" \
+    "804846e4cc76221f38f3a57845fab948a7ee5185" \
+    "xray-core" \
+    "feeds/small/xray-core"
     
 # Delete mosdns
 #rm -rf feeds/packages/net/mosdns
