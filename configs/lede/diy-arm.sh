@@ -9,12 +9,30 @@
 # File name: diy-ARMv8.sh
 # Description: OpenWrt DIY script part 2 (After Update feeds)
 #
+# ---------------------------
+# 修正默认 LAN IP 与主机名（兼容新版 Lede）
+# ---------------------------
 
-# Modify default IP
-sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
+# 目标配置
+NEW_IP="192.168.1.2"
+NEW_HOST="fang"
 
-# Hostname
-sed -i 's/LEDE/fang/g' package/base-files/files/bin/config_generate
+# 1️⃣ 修改 config_generate（防止旧逻辑仍生效）
+find package/base-files -type f -name config_generate -exec sed -i "s/192\.168\.1\.1/${NEW_IP}/g" {} +
+find package/base-files -type f -name config_generate -exec sed -i "s/\bLEDE\b/${NEW_HOST}/g" {} +
+
+# 2️⃣ 修改新版 /etc/board.d/99-lan-ip 默认 LAN IP（若存在）
+if grep -q "99-lan-ip" package/base-files/Makefile 2>/dev/null; then
+    echo "🧩 Detected new 99-lan-ip system, patching default IP..."
+    sed -i "s/192\.168\.1\.1/${NEW_IP}/g" package/base-files/Makefile
+fi
+
+# 3️⃣ 修改 generate_static_system 主机名（LEDE -> fang）
+find package/base-files -type f -exec sed -i "s#set system.@system\[-1\]\.hostname='LEDE'#set system.@system[-1].hostname='${NEW_HOST}'#g" {} +
+
+# 4️⃣ 打印确认（在 Actions 日志里可见）
+echo "🔍 Verifying IP/hostname replacements:"
+grep -RIn --exclude-dir=.git -E "${NEW_IP}|${NEW_HOST}" package/base-files || echo "⚠️ 未找到替换行，可能源结构变动"
 
 sed -i 's/os.date()/os.date("%Y-%m-%d %H:%M:%S")/g' package/lean/autocore/files/arm/index.htm
 
@@ -36,6 +54,8 @@ sed -i '/set luci.main.mediaurlbase=\/luci-static\/bootstrap/d' feeds/luci/theme
 rm -rf feeds/luci/applications/luci-app-mosdns
 rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
 rm -rf feeds/packages/utils/v2dat
+rm -rf feeds/small/luci-app-bypass
+rm -rf feeds/small/luci-app-ssr-plus
 rm -rf feeds/packages/lang/golang
 git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 git clone --depth=1 https://github.com/Leo-Jo-My/luci-theme-opentomcat.git package/luci-theme-opentomcat
