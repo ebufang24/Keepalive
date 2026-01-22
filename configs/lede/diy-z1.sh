@@ -15,8 +15,13 @@
 
 # Add a feed source
 #sed -i '$a src-git lienol https://github.com/Lienol/openwrt-package' feeds.conf.default
-sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
-sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
+# Passwall 官方 feeds（一定要在 small 前面）
+sed -i '1i src-git passwall_packages https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git;main' feeds.conf.default
+sed -i '2i src-git passwall_luci https://github.com/Openwrt-Passwall/openwrt-passwall.git;main' feeds.conf.default
+
+# kenzok8 的包
+sed -i '3i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
+sed -i '4i src-git small https://github.com/kenzok8/small' feeds.conf.default
 
 sed -i "48a\\
 sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config\n\
