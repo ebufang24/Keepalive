@@ -114,11 +114,11 @@ fetch_repo_dir() {
 #    "package/libs/openssl"
 
 # 固定 small/xray-core    
-fetch_repo_dir \
-    "https://github.com/kenzok8/small.git" \
-    "804846e4cc76221f38f3a57845fab948a7ee5185" \
-    "xray-core" \
-    "feeds/small/xray-core"
+#fetch_repo_dir \
+#    "https://github.com/kenzok8/small.git" \
+#    "804846e4cc76221f38f3a57845fab948a7ee5185" \
+#    "xray-core" \
+#    "feeds/small/xray-core"
     
 # Delete mosdns
 #rm -rf feeds/packages/net/mosdns
