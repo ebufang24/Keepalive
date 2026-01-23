@@ -556,6 +556,7 @@ jobs:
     steps:
 
       - name: Delete workflow runs
+        continue-on-error: true
         uses: Mattraks/delete-workflow-runs@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
