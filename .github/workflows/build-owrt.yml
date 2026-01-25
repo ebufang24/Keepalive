@@ -274,15 +274,13 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         name: ARMv8-lede ${{ env.DATE }}
-        tag: ${{ env.TAG_DATE }}-${{ github.run_number }}
+        tag: ${{ env.TAG_DATE }}
         artifacts: ${{ env.PACKAGED_OUTPUTPATH }}/*.img.gz
-        allowUpdates: false
-        removeArtifacts: false
+        allowUpdates: true
+        removeArtifacts: true
+        makeLatest: true
         token: ${{ secrets.GITHUB_TOKEN }}
-        body: |
-          * Default IP: 192.168.1.1
-          * Default username: root
-          * Default password: password
+
 
   x86-docker:
     name: x86d
@@ -538,15 +536,13 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         name: x86-lede-Docker ${{ env.PRODUCT_NAME }}${{ env.DATE }}
-        tag: x86-${{ env.TAG_DATE }}-${{ github.run_number }}
+        tag: ${{ env.TAG_DATE }}
         artifacts: ${{ env.FIRMWARE }}/*.img.gz
-        allowUpdates: false
-        removeArtifacts: false
-        token: ${{ secrets.GITHUB_TOKEN }}
-        body: |
-          * Default IP: 192.168.1.1
-          * Default username: root
-          * Default password: password
+        allowUpdates: true
+        removeArtifacts: true
+        makeLatest: true
+        token: ${{ secrets.GITHUB_TOKEN }}   
+
 
 
   delete:
@@ -556,8 +552,7 @@ jobs:
     steps:
 
       - name: Delete workflow runs
-        continue-on-error: true
-        uses: Mattraks/delete-workflow-runs@v2
+        uses: Mattraks/delete-workflow-runs@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
