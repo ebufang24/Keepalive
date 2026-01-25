@@ -2,6 +2,7 @@
 name: tewrt
 permissions:
   contents: write
+  actions: write
 on:
   repository_dispatch:
 #  schedule:
