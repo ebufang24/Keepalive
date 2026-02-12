@@ -58,7 +58,7 @@ rm -rf feeds/small/luci-app-ssr-plus
 #sed -i 's|^PKG_VERSION.*|PKG_VERSION:=25.8.3|' feeds/small/xray-core/Makefile
 #sed -i 's|^PKG_HASH.*|PKG_HASH:=a7d3785fdd46f1b045b1ef49a2a06e595c327f514b5ee8cd2ae7895813970b2c|' feeds/small/xray-core/Makefile
 git clone --depth=1 https://github.com/Leo-Jo-My/luci-theme-opentomcat.git package/luci-theme-opentomcat
-sed -i 's|^KERNEL_PATCHVER:=.*|KERNEL_PATCHVER:=6.1|' target/linux/x86/Makefile
+sed -i 's|^KERNEL_PATCHVER:=.*|KERNEL_PATCHVER:=6.12|' target/linux/x86/Makefile
 #############################################
 # 🔧 Fix: disable erofs-utils (404 source)
 #############################################
