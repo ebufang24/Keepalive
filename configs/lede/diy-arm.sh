@@ -115,12 +115,12 @@ fetch_repo_dir() {
 #    "package/libs/openssl" \
 #    "package/libs/openssl"
 
-# 固定 small/xray-core    
-#fetch_repo_dir \
-#    "https://github.com/kenzok8/small.git" \
-#    "804846e4cc76221f38f3a57845fab948a7ee5185" \
-#    "xray-core" \
-#    "feeds/small/xray-core"
+# 固定 kenzo/luci-app-argone-config    
+fetch_repo_dir \
+    "https://github.com/kenzok8/openwrt-packages.git" \
+    "975682568be6782d568901094ae20d25602e4d62" \
+    "luci-app-argone-config" \
+    "feeds/kenzo/luci-app-argone-config"
     
 # Delete mosdns
 #rm -rf feeds/packages/net/mosdns
