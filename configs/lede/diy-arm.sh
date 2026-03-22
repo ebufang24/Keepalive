@@ -121,6 +121,13 @@ fetch_repo_dir \
     "975682568be6782d568901094ae20d25602e4d62" \
     "luci-app-argone-config" \
     "feeds/kenzo/luci-app-argone-config"
+
+# 固定 small/luci-app-openclash    
+fetch_repo_dir \
+    "https://github.com/kenzok8/small.git" \
+    "74f1c2606f0b47b989a1a68a2b4b000123a2f915" \
+    "luci-app-openclash" \
+    "feeds/small/luci-app-openclash"
     
 # Delete mosdns
 #rm -rf feeds/packages/net/mosdns
