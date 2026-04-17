@@ -114,11 +114,11 @@ fetch_repo_dir() {
 #    "package/libs/openssl"
 
 # 固定 kenzo/luci-app-argone-config    
-fetch_repo_dir \
-    "https://github.com/kenzok8/openwrt-packages.git" \
-    "975682568be6782d568901094ae20d25602e4d62" \
-    "luci-app-argone-config" \
-    "feeds/kenzo/luci-app-argone-config"
+#fetch_repo_dir \
+#    "https://github.com/kenzok8/openwrt-packages.git" \
+#    "975682568be6782d568901094ae20d25602e4d62" \
+#    "luci-app-argone-config" \
+#    "feeds/kenzo/luci-app-argone-config"
 
 # 固定 small/luci-app-openclash    
 #fetch_repo_dir \
