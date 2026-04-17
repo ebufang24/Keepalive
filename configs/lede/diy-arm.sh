@@ -49,7 +49,7 @@ sed -i 's/services/system/g' feeds/luci/applications/luci-app-cpufreq/luasrc/con
 # Change default theme
 sed -i 's#luci-theme-bootstrap#luci-theme-opentomcat#g' feeds/luci/collections/luci/Makefile
 sed -i '/set luci.main.mediaurlbase=\/luci-static\/bootstrap/d' feeds/luci/themes/luci-theme-bootstrap/root/etc/uci-defaults/30_luci-theme-bootstrap
-
+sed -i 's/entry({"admin", "store"/entry({"admin", "services", "store"/g' $(find . -path "*luci-app-store*/luasrc/controller/store.lua")
 # Add additional packages
 rm -rf feeds/luci/applications/luci-app-mosdns
 rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
