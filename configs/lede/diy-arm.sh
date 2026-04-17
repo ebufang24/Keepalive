@@ -53,10 +53,13 @@ sed -i '/set luci.main.mediaurlbase=\/luci-static\/bootstrap/d' feeds/luci/theme
 # ===== iStore 移动到“服务”菜单 =====
 # 找到 store.lua
 STORE_FILE=$(find . -path "*luci-app-store*/luasrc/controller/store.lua")
-# 1. 隐藏原入口
-sed -i 's/entry({"admin", "store"}, call("redirect_index"), _("iStore"), 31)/local e = entry({"admin", "store"}, call("redirect_index"), _("iStore"), 31)\ne.hidden = true/' $STORE_FILE
-# 2. 在后面插入“服务菜单入口”
-sed -i '/e.hidden = true/a entry({"admin", "services", "store"}, alias("admin", "store"), _("iStore"), 31)' $STORE_FILE
+if [ -n "$STORE_FILE" ]; then
+  echo "🔧 patching iStore menu..."
+  # 隐藏原入口（不写死31）
+  sed -i 's/entry({"admin", "store"}, call("redirect_index"), _("iStore"), [0-9]*)/local e = entry({"admin", "store"}, call("redirect_index"), _("iStore"), 31)\ne.hidden = true/' $STORE_FILE
+  # 添加服务菜单
+  sed -i '/e.hidden = true/a entry({"admin", "services", "store"}, alias("admin", "store"), _("iStore"), 31)' $STORE_FILE
+fi
 
 # Add additional packages
 rm -rf feeds/luci/applications/luci-app-mosdns
@@ -124,11 +127,11 @@ fetch_repo_dir() {
 #    "package/libs/openssl"
 
 # 固定 kenzo/luci-app-argone-config    
-#fetch_repo_dir \
-#    "https://github.com/kenzok8/openwrt-packages.git" \
-#    "975682568be6782d568901094ae20d25602e4d62" \
-#    "luci-app-argone-config" \
-#    "feeds/kenzo/luci-app-argone-config"
+fetch_repo_dir \
+    "https://github.com/kenzok8/openwrt-packages.git" \
+    "975682568be6782d568901094ae20d25602e4d62" \
+    "luci-app-argone-config" \
+    "feeds/kenzo/luci-app-argone-config"
 
 # 固定 small/luci-app-openclash    
 #fetch_repo_dir \
