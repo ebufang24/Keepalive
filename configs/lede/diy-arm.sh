@@ -49,7 +49,17 @@ sed -i 's/services/system/g' feeds/luci/applications/luci-app-cpufreq/luasrc/con
 # Change default theme
 sed -i 's#luci-theme-bootstrap#luci-theme-opentomcat#g' feeds/luci/collections/luci/Makefile
 sed -i '/set luci.main.mediaurlbase=\/luci-static\/bootstrap/d' feeds/luci/themes/luci-theme-bootstrap/root/etc/uci-defaults/30_luci-theme-bootstrap
-sed -i 's/entry({"admin", "store"/entry({"admin", "services", "store"/g' $(find . -path "*luci-app-store*/luasrc/controller/store.lua")
+# ===== iStore 移动到“服务”菜单 =====
+
+# 找到 store.lua
+STORE_FILE=$(find . -path "*luci-app-store*/luasrc/controller/store.lua")
+
+# 1. 隐藏原入口
+sed -i 's/entry({"admin", "store"}, call("redirect_index"), _("iStore"), 31)/local e = entry({"admin", "store"}, call("redirect_index"), _("iStore"), 31)\ne.hidden = true/' $STORE_FILE
+
+# 2. 在后面插入“服务菜单入口”
+sed -i '/e.hidden = true/a entry({"admin", "services", "store"}, alias("admin", "store"), _("iStore"), 31)' $STORE_FILE
+
 # Add additional packages
 rm -rf feeds/luci/applications/luci-app-mosdns
 rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
