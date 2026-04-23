@@ -121,11 +121,16 @@ fetch_repo_dir() {
 #    "feeds/kenzo/luci-app-argone-config"
 
 # 固定 small/sing-box   
+# 删除所有来源
+rm -rf feeds/*/sing-box
+rm -rf package/feeds/*/sing-box
+
+# 放到最高优先级
 fetch_repo_dir \
-    "https://github.com/kenzok8/small.git" \
-    "f3015e9de136abef113abc011f926e7862c48e19" \
-    "sing-box" \
-    "feeds/small/sing-box"
+  "https://github.com/kenzok8/small.git" \
+  "f3015e9de136abef113abc011f926e7862c48e19" \
+  "sing-box" \
+  "package/sing-box"
     
 # Delete mosdns
 #rm -rf feeds/packages/net/mosdns
