@@ -125,7 +125,7 @@ fetch_repo_dir() {
 # 固定 small/sing-box   
 fetch_repo_dir \
     "https://github.com/kenzok8/small.git" \
-    "13fcc07646aef237e24d2bce413c3b697be46959" \
+    "f3015e9de136abef113abc011f926e7862c48e19" \
     "sing-box" \
     "feeds/small/sing-box"
     
