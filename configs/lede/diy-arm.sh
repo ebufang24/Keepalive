@@ -52,6 +52,7 @@ sed -i 's/services/system/g' feeds/luci/applications/luci-app-cpufreq/luasrc/con
 
 # Add additional packages
 rm -rf feeds/passwall_packages/geoview
+make package/feeds/packages/wget/host/compile -j1 V=s
 rm -rf feeds/luci/applications/luci-app-mosdns
 rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
 rm -rf feeds/packages/utils/v2dat
