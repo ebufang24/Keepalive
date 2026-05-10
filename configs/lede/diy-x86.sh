@@ -49,7 +49,6 @@ sed -i 's/os.date()/os.date("%Y-%m-%d %H:%M:%S")/g' package/lean/autocore/files/
 
 # Add additional packages
 rm -rf feeds/passwall_packages/geoview
-rm -rf feeds/coolsnowwolf/packages/luci-theme-argon
 rm -rf feeds/luci/applications/luci-app-mosdns
 rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
 rm -rf feeds/packages/utils/v2dat
@@ -115,12 +114,12 @@ fetch_repo_dir() {
 #    "package/libs/openssl" \
 #    "package/libs/openssl"
 
-# 固定 kenzo/luci-app-argone-config    
-#fetch_repo_dir \
-#    "https://github.com/kenzok8/openwrt-packages.git" \
-#    "975682568be6782d568901094ae20d25602e4d62" \
-#    "luci-app-argone-config" \
-#    "feeds/kenzo/luci-app-argone-config"
+# 固定 kenzo/luci-theme-argon 
+fetch_repo_dir \
+    "https://github.com/kenzok8/openwrt-packages.git" \
+    "d8eb4517314dca9e95d29cc66218cc888d76e463" \
+    "luci-theme-argon" \
+    "feeds/kenzo/luci-theme-argon"
 
 # 固定 small/sing-box   
 # 删除所有来源
