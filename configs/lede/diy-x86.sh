@@ -49,7 +49,7 @@ sed -i 's/os.date()/os.date("%Y-%m-%d %H:%M:%S")/g' package/lean/autocore/files/
 
 # Add additional packages
 rm -rf feeds/passwall_packages/geoview
-make package/feeds/packages/wget/host/compile -j1 V=s
+rm -rf feeds/coolsnowwolf/packages/luci-theme-argon
 rm -rf feeds/luci/applications/luci-app-mosdns
 rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
 rm -rf feeds/packages/utils/v2dat
