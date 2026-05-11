@@ -115,11 +115,11 @@ fetch_repo_dir() {
 #    "package/libs/openssl"
 
 # 固定 kenzo/luci-theme-argon 
-fetch_repo_dir \
-    "https://github.com/kenzok8/openwrt-packages.git" \
-    "d8eb4517314dca9e95d29cc66218cc888d76e463" \
-    "luci-theme-argon" \
-    "feeds/kenzo/luci-theme-argon"
+#fetch_repo_dir \
+#    "https://github.com/kenzok8/openwrt-packages.git" \
+#    "d8eb4517314dca9e95d29cc66218cc888d76e463" \
+#    "luci-theme-argon" \
+#    "feeds/kenzo/luci-theme-argon"
 
 # 固定 small/sing-box   
 # 删除所有来源
