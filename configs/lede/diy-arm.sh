@@ -138,6 +138,13 @@ fetch_repo_dir() {
 # Delete mosdns
 #rm -rf feeds/packages/net/mosdns
 
+# 删除已有晶晨宝盒
+rm -rf feeds/*/luci-app-amlogic
+rm -rf package/*/luci-app-amlogic
+rm -rf package/luci-app-amlogic
+# 使用 ophub 的 lua 分支
+git clone -b lua https://github.com/ophub/luci-app-amlogic.git package/luci-app-amlogic
+
 # Update Go Version
 #rm -rf feeds/packages/lang/golang && git clone -b 22.x https://github.com/sbwml/packages_lang_golang feeds/packages/lang/golang
 
