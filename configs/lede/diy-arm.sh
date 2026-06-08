@@ -120,7 +120,7 @@ fetch_repo_dir() {
 # 固定 kenzo/luci-app-amlogic
 fetch_repo_dir \
     "https://github.com/kenzok8/openwrt-packages.git" \
-    "4b3fbd34ba7f81bc83f68faf8c57d86bc35aaafb" \
+    "c818fc15ca1347cf949e2892106a38818eed93e9" \
     "luci-app-amlogic" \
     "feeds/kenzo/luci-app-amlogic"
 
