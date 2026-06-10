@@ -118,11 +118,11 @@ fetch_repo_dir() {
 #    "package/libs/openssl"
 
 # 固定 kenzo/luci-app-amlogic
-fetch_repo_dir \
-    "https://github.com/kenzok8/openwrt-packages.git" \
-    "c818fc15ca1347cf949e2892106a38818eed93e9" \
-    "luci-app-amlogic" \
-    "feeds/kenzo/luci-app-amlogic"
+#fetch_repo_dir \
+#    "https://github.com/kenzok8/openwrt-packages.git" \
+#    "c818fc15ca1347cf949e2892106a38818eed93e9" \
+#    "luci-app-amlogic" \
+#    "feeds/kenzo/luci-app-amlogic"
 
 # 固定 small/sing-box   
 # 删除所有来源
