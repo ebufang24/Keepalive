@@ -55,8 +55,6 @@ rm -rf feeds/passwall_packages/geoview
 rm -rf feeds/luci/applications/luci-app-mosdns
 rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
 rm -rf feeds/packages/utils/v2dat
-rm -rf feeds/small/dae
-rm -rf feeds/small/daed
 rm -rf feeds/small/hysteria
 rm -rf feeds/small/luci-app-bypass
 rm -rf feeds/small/luci-app-ssr-plus
