@@ -146,3 +146,21 @@ sed -i '750a\
                 <tr><td width="33%">&#32534;&#35793;&#32773;&#58;&#32;&#83;&#105;&#108;</td><td><a href="https://t.me/passwall2" style="color: black;" target="_blank">&#32676;&#32452;&#38142;&#25509;</a></td></tr>\
                 <tr><td width="33%">&#28304;&#30721;&#58;&#32;&#108;&#101;&#100;&#101;</td><td><a href="https://github.com/coolsnowwolf/lede" style="color: black;" target="_blank">&#28304;&#30721;&#38142;&#25509;</a></td></tr>
 ' package/lean/autocore/files/x86/index.htm
+
+# 修复 dockerd 29.1.1 x86_64 编译时附属程序不存在导致 cp: cannot stat ''
+mkdir -p feeds/packages/utils/dockerd/patches
+
+cat > feeds/packages/utils/dockerd/patches/100-fix-binary-daemon.patch <<'EOF'
+--- a/hack/make/binary-daemon
++++ b/hack/make/binary-daemon
+@@ -13,8 +13,10 @@
+ 	fi
+ 	echo "Copying nested executables into $dir"
+ 	for file in containerd containerd-shim-runc-v2 ctr runc docker-init rootlesskit dockerd-rootless.sh dockerd-rootless-setuptool.sh; do
+-		cp -f "$(command -v "$file")" "$dir/"
++		if command -v "$file" >/dev/null 2>&1; then
++			cp -f "$(command -v "$file")" "$dir/"
++		fi
+ 	done
+ 	# vpnkit might not be available for the target platform, see vpnkit stage in
+EOF
