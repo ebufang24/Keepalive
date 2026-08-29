@@ -152,6 +152,17 @@ jobs:
         cd openwrt
         ./scripts/feeds install -a
         df -hT
+        
+    - name: Check feeds versions
+      run: |
+        cd openwrt
+        echo "=== packages commit ==="
+        git -C feeds/packages log -1 --oneline
+        echo "=== Go version files ==="
+        grep -R "GO_DEFAULT_VERSION\|GO_VERSION_MAJOR_MINOR\|GO_VERSION_PATCH" feeds/packages/lang/golang/ | head -20
+        echo "=== containerd ==="
+        grep "PKG_VERSION" feeds/packages/utils/containerd/Makefile
+         
 
     # 加载自定义配置文件（包括 .config 和 files）
     - name: Load custom configuration
