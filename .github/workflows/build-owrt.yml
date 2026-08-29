@@ -198,6 +198,7 @@ jobs:
       uses: HiGarfield/cachewrtbuild@main
       with:
         ccache: 'true'
+        toolchain: 'false'
         mixkey: ${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
         prefix: ${{ github.workspace }}/openwrt
 
@@ -465,6 +466,7 @@ jobs:
       uses: HiGarfield/cachewrtbuild@main
       with:
         ccache: 'true'
+        toolchain: 'false'
         mixkey: ${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
         prefix: ${{ github.workspace }}/openwrt
 
