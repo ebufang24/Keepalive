@@ -58,8 +58,8 @@ rm -rf feeds/packages/utils/v2dat
 rm -rf feeds/small/hysteria
 rm -rf feeds/small/luci-app-bypass
 rm -rf feeds/small/luci-app-ssr-plus
-rm -rf feeds/packages/lang/golang
-git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
+#rm -rf feeds/packages/lang/golang
+#git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 sed -i 's|^KERNEL_PATCHVER:=.*|KERNEL_PATCHVER:=6.12|' target/linux/armsr/Makefile
 #git clone --depth=1 https://github.com/Leo-Jo-My/luci-theme-opentomcat.git package/luci-theme-opentomcat
 #sed -i 's|^PKG_VERSION.*|PKG_VERSION:=25.8.3|' feeds/small/xray-core/Makefile
