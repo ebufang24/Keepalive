@@ -53,13 +53,12 @@ sed -i 's/services/system/g' feeds/luci/applications/luci-app-cpufreq/luasrc/con
 # Add additional packages
 rm -rf feeds/passwall_packages/geoview
 rm -rf feeds/luci/applications/luci-app-mosdns
+rm -rf feeds/luci/applications/luci-app-filetransfer
 rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
 rm -rf feeds/packages/utils/v2dat
 rm -rf feeds/small/hysteria
 rm -rf feeds/small/luci-app-bypass
 rm -rf feeds/small/luci-app-ssr-plus
-# 修复 luci-app-filetransfer 与新版 luci.fs.glob() 的兼容性
-find feeds/luci -type f -name filetransfer.lua -exec sed -i 's|for f in fs\.glob("/tmp/upload/\*") do|for _, f in ipairs(fs.glob("/tmp/upload/*")) do|' {} +
 #rm -rf feeds/packages/lang/golang
 #git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 sed -i 's|^KERNEL_PATCHVER:=.*|KERNEL_PATCHVER:=6.12|' target/linux/armsr/Makefile
