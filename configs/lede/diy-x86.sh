@@ -56,6 +56,8 @@ rm -rf feeds/packages/utils/v2dat
 #git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 rm -rf feeds/small/luci-app-bypass
 rm -rf feeds/small/luci-app-ssr-plus
+# 修复 luci-app-filetransfer 与新版 luci.fs.glob() 的兼容性
+find feeds/luci -type f -name filetransfer.lua -exec sed -i 's|for f in fs\.glob("/tmp/upload/\*") do|for _, f in ipairs(fs.glob("/tmp/upload/*")) do|' {} +
 #sed -i 's|^PKG_VERSION.*|PKG_VERSION:=25.8.3|' feeds/small/xray-core/Makefile
 #sed -i 's|^PKG_HASH.*|PKG_HASH:=a7d3785fdd46f1b045b1ef49a2a06e595c327f514b5ee8cd2ae7895813970b2c|' feeds/small/xray-core/Makefile
 #git clone --depth=1 https://github.com/Leo-Jo-My/luci-theme-opentomcat.git package/luci-theme-opentomcat
