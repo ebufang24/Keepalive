@@ -165,3 +165,5 @@ cat > feeds/packages/utils/dockerd/patches/100-fix-binary-daemon.patch <<'EOF'
  	done
  }
 EOF
+sed -i '/^CONFIG_PACKAGE_luci-theme-design=/d; /^# CONFIG_PACKAGE_luci-theme-design is not set$/d' .config
+echo '# CONFIG_PACKAGE_luci-theme-design is not set' >> .config
