@@ -160,3 +160,5 @@ sed -i '741a\
 
 #curl -fsSL https://raw.githubusercontent.com/yunxi993/OpenWrt-ARMv8/main/patch/Makefile > feeds/packages/utils/xfsprogs/Makefile
 #curl -fsSL https://raw.githubusercontent.com/Potterli20/packages/master/utils/zstd/Makefile > feeds/packages/utils/zstd/Makefile
+sed -i '/^CONFIG_PACKAGE_luci-theme-design=/d; /^# CONFIG_PACKAGE_luci-theme-design is not set$/d' .config
+echo '# CONFIG_PACKAGE_luci-theme-design is not set' >> .config
