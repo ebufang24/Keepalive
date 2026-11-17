@@ -410,7 +410,7 @@ jobs:
       working-directory: openwrt
       run: |
         set -e
-        git fetch --no-tags --deepen=200 origin master
+        git fetch --no-tags --unshallow origin
         git reset --hard d20e365
         git log -1 --oneline
 
