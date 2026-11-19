@@ -135,7 +135,7 @@ jobs:
       run: |
         set -e
         git fetch --no-tags --unshallow origin
-        git reset --hard d20e365
+        git reset --hard 80122fe
         git log -1 --oneline
 
     # 加载自定义 feed 配置
@@ -180,6 +180,13 @@ jobs:
         set -e
         cd openwrt
         make defconfig
+
+        echo "===== 防火墙配置检查 ====="
+        grep -E '^(CONFIG_PACKAGE_(firewall4|nftables|kmod-nft-queue|iptables|luci-app-homeproxy)=y|# CONFIG_PACKAGE_(firewall4|nftables|kmod-nft-queue|iptables|luci-app-homeproxy) is not set)' .config || true
+
+        echo "===== HomeProxy 依赖检查 ====="
+        grep -E '^(CONFIG_PACKAGE_(sing-box|kmod-tun|curl|flock|unzip|ucode-mod-digest|ucode-mod-math|ucode-mod-uloop)=y|# CONFIG_PACKAGE_(sing-box|kmod-tun|curl|flock|unzip|ucode-mod-digest|ucode-mod-math|ucode-mod-uloop) is not set)' .config || true
+
         make download -j$(nproc) || true
         # 删除下载失败的小文件
         find dl -size -1024c -exec ls -l {} \; || true
@@ -411,7 +418,7 @@ jobs:
       run: |
         set -e
         git fetch --no-tags --unshallow origin
-        git reset --hard d20e365
+        git reset --hard 80122fe
         git log -1 --oneline
 
     # 加载自定义 feed 配置
@@ -456,6 +463,13 @@ jobs:
         set -e
         cd openwrt
         make defconfig
+
+        echo "===== 防火墙配置检查 ====="
+        grep -E '^(CONFIG_PACKAGE_(firewall4|nftables|kmod-nft-queue|iptables|luci-app-homeproxy)=y|# CONFIG_PACKAGE_(firewall4|nftables|kmod-nft-queue|iptables|luci-app-homeproxy) is not set)' .config || true
+
+        echo "===== HomeProxy 依赖检查 ====="
+        grep -E '^(CONFIG_PACKAGE_(sing-box|kmod-tun|curl|flock|unzip|ucode-mod-digest|ucode-mod-math|ucode-mod-uloop)=y|# CONFIG_PACKAGE_(sing-box|kmod-tun|curl|flock|unzip|ucode-mod-digest|ucode-mod-math|ucode-mod-uloop) is not set)' .config || true
+
         make download -j$(nproc) || true
         # 删除下载失败的小文件
         find dl -size -1024c -exec ls -l {} \; || true
