@@ -167,3 +167,13 @@ cat > feeds/packages/utils/dockerd/patches/100-fix-binary-daemon.patch <<'EOF'
 EOF
 sed -i '/^CONFIG_PACKAGE_luci-theme-design=/d; /^# CONFIG_PACKAGE_luci-theme-design is not set$/d' .config
 echo '# CONFIG_PACKAGE_luci-theme-design is not set' >> .config
+
+# sing-box 指定使用 small feed
+./scripts/feeds uninstall sing-box
+./scripts/feeds install -p small sing-box
+
+# 检查 sing-box 来源
+echo "===== sing-box 来源检查 ====="
+ls -l package/feeds/*/sing-box
+readlink -f package/feeds/small/sing-box
+grep '^PKG_UPSTREAM_VERSION' feeds/small/sing-box/Makefile
