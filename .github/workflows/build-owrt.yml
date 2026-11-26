@@ -130,7 +130,7 @@ jobs:
         df -hT
     # 回退历史版本
     - name: Restore LEDE
-      #if: false
+      if: false
       working-directory: openwrt
       run: |
         set -e
@@ -413,7 +413,7 @@ jobs:
         df -hT
     # 回退历史版本
     - name: Restore LEDE
-      #if: false
+      if: false
       working-directory: openwrt
       run: |
         set -e
