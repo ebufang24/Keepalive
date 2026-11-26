@@ -286,6 +286,7 @@ jobs:
         openwrt_path: openwrt/bin/targets/*/*/*rootfs.tar.gz
         openwrt_board: s905d_s912_s905x3-hk1
         openwrt_kernel: 6.12.118
+        auto_kernel: false
 
     - name: Upload OpenWrt Firmware to Release
       uses: ncipollo/release-action@v1
