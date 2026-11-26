@@ -172,3 +172,11 @@ echo "===== sing-box 来源检查 ====="
 ls -l package/feeds/*/sing-box
 readlink -f package/feeds/small/sing-box
 grep '^PKG_UPSTREAM_VERSION' feeds/small/sing-box/Makefile
+
+# 放宽 HomeProxy 对 sing-box 的修订号要求
+sed -i 's/sing-box (>=1.15.0_alpha13-r2)/sing-box (>=1.15.0_alpha13)/' \
+    feeds/small/luci-app-homeproxy/Makefile
+
+echo "===== HomeProxy sing-box 依赖检查 ====="
+grep 'LUCI_EXTRA_DEPENDS' \
+    feeds/small/luci-app-homeproxy/Makefile
