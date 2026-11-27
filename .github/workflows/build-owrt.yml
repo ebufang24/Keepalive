@@ -281,14 +281,13 @@ jobs:
         echo "{status}={success}" >> $GITHUB_OUTPUT
 
     - name: Package Armvirt as OpenWrt
-      uses: ophub/amlogic-s9xxx-openwrt@main
+      uses: ophub/amlogic-s9xxx-openwrt@a1e23c503159930bc906bcbba19b45de874adc13
       with:
         openwrt_path: openwrt/bin/targets/*/*/*rootfs.tar.gz
         openwrt_board: s905d_s912_s905x3-hk1
         openwrt_kernel: 6.12.y
         #auto_kernel: false
-        openwrt_ip: 192.168.1.2
-
+        
     - name: Upload OpenWrt Firmware to Release
       uses: ncipollo/release-action@v1
       with:
