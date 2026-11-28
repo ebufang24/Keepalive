@@ -281,7 +281,7 @@ jobs:
         echo "{status}={success}" >> $GITHUB_OUTPUT
 
     - name: Package Armvirt as OpenWrt
-      uses: ophub/amlogic-s9xxx-openwrt@a1e23c503159930bc906bcbba19b45de874adc13
+      uses: ophub/amlogic-s9xxx-openwrt@main
       with:
         openwrt_path: openwrt/bin/targets/*/*/*rootfs.tar.gz
         openwrt_board: s905d_s912_s905x3-hk1
